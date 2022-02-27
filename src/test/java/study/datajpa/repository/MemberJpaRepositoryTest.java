@@ -7,6 +7,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -29,6 +31,28 @@ class MemberJpaRepositoryTest {
         assertThat(findMember.getId()).isEqualTo(member.getId());
         assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
         assertThat(findMember).isEqualTo(findMember);
+
+    }
+
+    @Test
+    public void basicCRUD() {
+        Member member1 = new Member("member1");
+        Member member2 = new Member("member2");
+        memberJpaRepository.save(member1);
+        memberJpaRepository.save(member2);
+
+        Optional<Member> findMemeber1 = memberJpaRepository.findById(member1.getId());
+        if(findMemeber1.isPresent()) {
+            assertThat(findMemeber1.get().getUsername()).isEqualTo(member1.getUsername());
+        }
+
+        Optional<Member> findMemeber2 = memberJpaRepository.findById(member2.getId());
+        if(findMemeber2.isPresent()) {
+            assertThat(findMemeber2.get().getUsername()).isEqualTo(member2.getUsername());
+        }
+
+        long count = memberJpaRepository.count();
+        assertThat(count).isEqualTo(2);
 
     }
 
