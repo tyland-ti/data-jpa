@@ -7,6 +7,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +54,24 @@ class MemberJpaRepositoryTest {
 
         long count = memberJpaRepository.count();
         assertThat(count).isEqualTo(2);
+
+    }
+
+    @Test
+    public void findByUsernameAndAgeTest() {
+        Member member1 = new Member("membera", 10);
+        Member member2 = new Member("memberb", 20);
+        Member member3 = new Member("membera", 30);
+
+        memberJpaRepository.save(member1);
+        memberJpaRepository.save(member2);
+        memberJpaRepository.save(member3);
+
+        List<Member> findMember1 = memberJpaRepository.findByUsernameAndAge("membera", 5);
+        List<Member> findMember2 = memberJpaRepository.findByUsernameAndAge("membera", 15);
+
+        assertThat(findMember1.size()).isEqualTo(2);
+        assertThat(findMember2.size()).isEqualTo(1);
 
     }
 
