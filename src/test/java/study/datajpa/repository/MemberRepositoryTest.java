@@ -13,6 +13,8 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.awt.print.Pageable;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +31,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -144,7 +148,7 @@ class MemberRepositoryTest {
         //when
         Page<Member> page = memberRepository.findByAge(10, pageRequest);
 
-        Page<MemberDto> memberDto = page.map(m -> new MemberDto(m.getId(), m.getUsername(), "AAA"));
+        page.map(m -> new MemberDto(m.getId(), m.getUsername(), "AAA"));
 
         //then
         List<Member> content = page.getContent();
@@ -157,16 +161,65 @@ class MemberRepositoryTest {
         assertThat(page.hasNext()).isTrue();                 //다음 페이지가 있는지
 
         //slice 테스트
-//        Slice<Member> slicePage = memberRepository.findSliceByAge(10, pageRequest);
-//
-//        List<Member> content2 = slicePage.getContent();
-//
-//        assertThat(content2.size()).isEqualTo(3);
-//        //assertThat(slicePage.getTotalElements()).isEqualTo(5);    //전체 갯수
-//        assertThat(slicePage.getNumber()).isEqualTo(0);           //현재페이지 번호
-//        //assertThat(slicePage.getTotalPages()).isEqualTo(2);       //전체 페이지 갯수
-//        assertThat(slicePage.isFirst()).isTrue();                 //현재 첫번째 페이지 인지
-//        assertThat(slicePage.hasNext()).isTrue();                 //다음 페이지가 있는지
+        Slice<Member> slicePage = memberRepository.findSliceByAge(10, pageRequest);
+
+        List<Member> content2 = slicePage.getContent();
+
+        assertThat(content2.size()).isEqualTo(3);
+        //assertThat(slicePage.getTotalElements()).isEqualTo(5);    //전체 갯수
+        assertThat(slicePage.getNumber()).isEqualTo(0);           //현재페이지 번호
+        //assertThat(slicePage.getTotalPages()).isEqualTo(2);       //전체 페이지 갯수
+        assertThat(slicePage.isFirst()).isTrue();                 //현재 첫번째 페이지 인지
+        assertThat(slicePage.hasNext()).isTrue();                 //다음 페이지가 있는지
+
+    }
+
+    @Test
+    public void bulkUpdateTest() {
+
+        //given
+        memberRepository.save(new Member("멤버1", 10));
+        memberRepository.save(new Member("멤버2", 12));
+        memberRepository.save(new Member("멤버3", 13));
+        memberRepository.save(new Member("멤버4", 14));
+        memberRepository.save(new Member("멤버5", 15));
+
+
+        //when
+        int updateCount = memberRepository.bulkUpdateAge(11);
+        List<Member> all = memberRepository.findAll();
+        for(Member m:all) {
+            System.out.println("name = "+m.getUsername() + " age = "+m.getAge());
+        }
+
+        //then
+        assertThat(updateCount).isEqualTo(4);
+    }
+
+    @Test
+    public void fetchJoinTest() {
+
+        Team save1 = teamRepository.save(new Team("team 1"));
+        Team save2 = teamRepository.save(new Team("team 2"));
+
+        memberRepository.save(new Member("멤버1",10,save1));
+        memberRepository.save(new Member("멤버2",11,save1));
+        memberRepository.save(new Member("멤버3",12,save1));
+        memberRepository.save(new Member("멤버4",13,save2));
+        memberRepository.save(new Member("멤버5",14,save2));
+
+        em.flush();
+        em.clear();
+
+        List<Member> all = memberRepository.findAll();
+        for (Member m:all) {
+            System.out.println("team name = "+ m.getUsername() + " :: "+m.getTeam().getName());
+        }
+
+        List<Member> fetchJoin = memberRepository.findFetchJoin();
+        assertThat(fetchJoin.size()).isEqualTo(5);
+
+        List<Member> memberCustom = memberRepository.findMemberCustom();
 
     }
 }

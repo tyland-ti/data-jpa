@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional //테스트 끝나고 모두 롤백, 밑에 rollback false 해주면 롤백이 되지 않는다
-//@Rollback(value = false)
+@Rollback(value = false)
 class MemberJpaRepositoryTest {
 
     @Autowired
@@ -95,6 +95,26 @@ class MemberJpaRepositoryTest {
         //then
         assertThat(members.size()).isEqualTo(3);
         assertThat(TotalCount).isEqualTo(5);
+    }
+
+    @Test
+    public void bulkUpdateTest() {
+
+        //given
+        memberJpaRepository.save(new Member("멤버1", 10));
+        memberJpaRepository.save(new Member("멤버2", 12));
+        memberJpaRepository.save(new Member("멤버3", 13));
+        memberJpaRepository.save(new Member("멤버4", 14));
+        memberJpaRepository.save(new Member("멤버5", 15));
+
+        List<Member> all = memberJpaRepository.findAll();
+
+        //when
+        int updateCount = memberJpaRepository.bulkAgePlus(11);
+
+        //then
+        assertThat(updateCount).isEqualTo(4);
+
     }
 
 }
