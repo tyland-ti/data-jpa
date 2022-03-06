@@ -231,9 +231,15 @@ class MemberRepositoryTest {
         em.persist(member1);
         em.persist(member2);
 
-        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("user1");
+        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("user1", UsernameOnly.class);
 
         for (UsernameOnly user:result) {
+            System.out.println(user.toString());
+        }
+
+        List<ProjectTest> result2 = memberRepository.findProjectionsByUsername("user1", ProjectTest.class);
+
+        for (ProjectTest user:result2) {
             System.out.println(user.toString());
         }
 
