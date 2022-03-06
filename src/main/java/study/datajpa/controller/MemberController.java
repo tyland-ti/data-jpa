@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 import study.datajpa.repository.MemberRepository;
+import study.datajpa.repository.TeamRepository;
 
 import javax.annotation.PostConstruct;
 import java.util.Optional;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class MemberController {
 
     private final MemberRepository memberRepository;
+    private final TeamRepository teamRepository;
 
     @GetMapping("/member/{id}")
     public String findMember(@PathVariable("id") Long id) {
@@ -34,8 +37,8 @@ public class MemberController {
     }
 
     //페이징 DTO로 변환
-    @GetMapping("/members")
-    public Page<MemberDto> listReturnDto(@PageableDefault(size = 5, sort = "username") Pageable pageable) {
+    @GetMapping("/membersDto")
+    public Page<MemberDto> listReturnDto(@PageableDefault(size = 5) Pageable pageable) {
         return  memberRepository.findAll(pageable)
                 .map(m -> new MemberDto(m.getId(), m.getUsername(), m.getTeam().getName()));
     }
@@ -44,8 +47,10 @@ public class MemberController {
     @PostConstruct
     public void init() {
 
-        for (int i = 0; i < 100; i++) {
-            memberRepository.save(new Member("user" + i, i));
+        Team team = teamRepository.save(new Team("TeamA"));
+
+        for (int i = 0; i < 30; i++) {
+            memberRepository.save(new Member("user" + i, i, team));
         }
     }
 }
