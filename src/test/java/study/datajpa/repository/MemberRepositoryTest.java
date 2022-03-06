@@ -222,4 +222,22 @@ class MemberRepositoryTest {
         List<Member> memberCustom = memberRepository.findMemberCustom();
 
     }
+
+    @Test
+    public void Projections() {
+
+        Member member1 = new Member("user1", 10 );
+        Member member2 = new Member("user2", 10 );
+        em.persist(member1);
+        em.persist(member2);
+
+        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("user1");
+
+        for (UsernameOnly user:result) {
+            System.out.println(user.toString());
+        }
+
+
+
+    }
 }

@@ -66,4 +66,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @EntityGraph(attributePaths = {"team"})
     List<Member> findByUsername(@Param("username") String username);
 
+    List<UsernameOnly> findProjectionsByUsername(@Param("username") String username);
+
 }
